@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/joodo/bepa-homepage#readme",
   "devDependencies": {
+    "element-ui": "^2.0.8",
     "nuxt": "^1.0.0-rc11"
   }
 }
