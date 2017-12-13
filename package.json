@@ -1,0 +1,24 @@
+{
+  "name": "bepa-homepage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt generate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joodo/bepa-homepage.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joodo/bepa-homepage/issues"
+  },
+  "homepage": "https://github.com/joodo/bepa-homepage#readme",
+  "devDependencies": {
+    "nuxt": "^1.0.0-rc11"
+  }
+}

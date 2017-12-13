@@ -1,0 +1,9 @@
+# OS
+.DS_Store
+*.log
+*.swp
+
+# Webpack
+node_modules
+dist
+.nuxt
