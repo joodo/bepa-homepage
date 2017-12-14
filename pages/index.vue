@@ -1,11 +1,11 @@
 <template>
   <div>
-    <widget-base :widget-x="6" :widget-y="6" :widget-width="12" :widget-height="12">
+    <widget-base :widgetData="{x:6,y:6,width:12,height:6}">
       <el-card class="base-card">
         <h1>It Works</h1>
       </el-card>
     </widget-base>
-    <widget-base :widget-width="3" :widget-height="2">
+    <widget-base :widgetData="{width:3,height:1}">
       <el-card class="menu-card">
         <span style="margin-right: 16px;">Edit Mode</span><el-switch v-model="editMode"></el-switch>
       </el-card>
