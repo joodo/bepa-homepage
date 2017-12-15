@@ -1,10 +1,20 @@
 <template>
   <div class="widget" :style="styleObject">
     <transition-group name="el-fade-in">
-      <div v-show="editMode" v-for="handle in handles"
-        :class="'handle handle-'+handle" :key="handle"
-        @mousedown.stop.prevent="handleDown(handle, $event)"></div>
+      <div v-show="editMode" v-for="anchorPoint in anchorPoints"
+        :class="'anchor-point anchor-point-'+anchorPoint" :key="anchorPoint"
+        @mousedown.stop.prevent="anchorPointDown(anchorPoint, $event)"></div>
     </transition-group>
+    <transition name="el-zoom-in-top">
+    <svg class="handle-move" v-show="editMode" width="100" height="30"
+      @mousedown.stop.prevent="handleMoveDown">
+      <path d="M0 0 Q5 10 10 10 L90 10 Q95 10 100 0"
+            style="stroke:#AAA; stroke-width:2; fill: white;" />
+      <line class="line" x1="30" y1="6" x2="70" y2="6" />
+      <line class="line" x1="30" y1="4" x2="70" y2="4" />
+      <line class="line" x1="30" y1="2" x2="70" y2="2" />
+    </svg>
+    </transition>
     <slot>empty widget</slot>
   </div>
 </template>
@@ -39,14 +49,17 @@ export default {
       widgetWidth: Math.trunc(widgetData.width),
       widgetHeight: Math.trunc(widgetData.height),
 
-      handles: ['tl', 'tr', 'bl', 'br'],
-      handle: null,
+      anchorPoints: ['tl', 'tr', 'bl', 'br'],
+      anchorPoint: null,
       resizing: false,
+
+      handlePosition: null,
+      moving: false,
     }
   },
   mounted () {
-    document.documentElement.addEventListener('mousemove', this.handleMove, true)
-    document.documentElement.addEventListener('mouseup', this.handleUp, true)
+    document.documentElement.addEventListener('mousemove', this.mouseMove, true)
+    document.documentElement.addEventListener('mouseup', this.mouseUp, true)
   },
   computed: {
     styleObject () {
@@ -60,37 +73,50 @@ export default {
     editMode () { return this.$store.state.editMode },
   },
   methods: {
-    handleDown (handle, event) {
-      this.handle = handle
+    anchorPointDown (anchorPoint, event) {
+      this.anchorPoint = anchorPoint
+      this.resizing = true
       if (event.stopPropagation) event.stopPropagation()
       if (event.preventDefault) event.preventDefault()
-      this.resizing = true
     },
-    handleMove (event) {
+    handleMoveDown (event) {
+      const xx = Math.trunc((event.clientX+document.documentElement.scrollLeft) * 24 / document.documentElement.clientWidth)
+      const yy = Math.trunc((event.clientY+document.documentElement.scrollTop) / HGrid)
+      this.handlePosition = { x: xx-this.widgetX, y: yy-this.widgetY }
+      this.moving = true
+      if (event.stopPropagation) event.stopPropagation()
+      if (event.preventDefault) event.preventDefault()
+    },
+    mouseMove (event) {
+      const xx = Math.trunc((event.clientX+document.documentElement.scrollLeft) * 24 / document.documentElement.clientWidth)
+      const yy = Math.trunc((event.clientY+document.documentElement.scrollTop) / HGrid)
+
       if (this.resizing) {
-        const xx = Math.trunc((event.clientX+document.documentElement.scrollLeft) * 24 / document.documentElement.clientWidth)
-        const yy = Math.trunc((event.clientY+document.documentElement.scrollTop) / HGrid)
-        if (this.handle.includes('l')) {
+        if (this.anchorPoint.includes('l')) {
           const right = this.widgetX + this.widgetWidth
           this.widgetX = xx
           this.widgetWidth = right - xx
         }
-        if (this.handle.includes('r')) {
+        if (this.anchorPoint.includes('r')) {
           this.widgetWidth = xx - this.widgetX
         }
-        if (this.handle.includes('t')) {
+        if (this.anchorPoint.includes('t')) {
           const bottom = this.widgetY + this.widgetHeight
           this.widgetY = yy
           this.widgetHeight = bottom - yy
         }
-        if (this.handle.includes('b')) {
+        if (this.anchorPoint.includes('b')) {
           this.widgetHeight = yy - this.widgetY
         }
+      } else if (this.moving) {
+        this.widgetX = xx - this.handlePosition.x
+        this.widgetY = yy - this.handlePosition.y
       }
     },
-    handleUp (event) {
-      //this.handle = null
+    mouseUp (event) {
+      this.anchorPoint = null
       this.resizing = false
+      this.moving = false
     },
   }
 }
@@ -101,34 +127,44 @@ export default {
   position: absolute;
   padding: 5px;
 }
-.handle {
+.anchor-point {
   position: absolute;
   width: 10px;
   height: 10px;
   border: 1px solid #999;
 }
-.handle-tl {
+.anchor-point-tl {
   left: 0;
   top: 0;
   cursor: nwse-resize;
 }
-.handle-bl {
+.anchor-point-bl {
   left: 0;
   top: 100%;
   margin-top: -10px;
   cursor: nesw-resize;
 }
-.handle-tr {
+.anchor-point-tr {
   left: 100%;
   margin-left: -10px;
   top: 0;
   cursor: nesw-resize;
 }
-.handle-br {
+.anchor-point-br {
   left: 100%;
   margin-left: -10px;
   top: 100%;
   margin-top: -10px;
   cursor: nwse-resize;
+}
+.handle-move {
+  position: absolute;
+  cursor: move;
+  left: 50%;
+  margin-left: -50px;
+}
+.line {
+  stroke:#BBB;
+  stroke-width: 1;
 }
 </style>
